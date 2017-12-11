@@ -114,7 +114,6 @@
 <body>
     <ol class="tasks">
         <li>
-
             <h4>
                 При нажатии на кнопку, добавлять в <code>div</code> с идентификатором <code>container</code> фрагмент разметки в выбраную позицию. В заголовок писать порядковый номер вставляемого элемента
             </h4>
@@ -125,11 +124,10 @@
  &lt;/div&gt;
             </pre>
             <br />
-
-            <div class="hidden-class" id="my_template">
-                my template text
+            <div class="item hidden-class" id="my_template">
+                <h4>Заголовок #</h4>
+                <p>текст текст текст</p>
             </div>
-
             <select class="form-control" id="selectPlace">
 <option value="start">Добавить в начало</option>
 <option value="middle">Добавить в середину</option>
@@ -145,11 +143,8 @@
 
                     function addMarkup(event) {
                         var container = document.getElementById('container');
-                        var pre = document.getElementsByTagName('pre')[0].innerText;
-                        var myTemplate = document.getElementById('my_template');
-                        myTemplate.innerHTML = pre;
-                        myTemplate.getElementsByTagName('h4')[0].innerText += container.children.length + 1;
-                        var newElement = myTemplate.cloneNode(true);
+                        var newElement = document.getElementById('my_template').cloneNode(true);
+                        newElement.getElementsByTagName('h4')[0].innerText += container.children.length + 1;
                         newElement.classList.remove("hidden-class");
                         var selectValue = document.getElementById('selectPlace').value;
                         switch (selectValue) {

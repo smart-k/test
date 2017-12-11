@@ -96,14 +96,6 @@
             display: none;
         }
 
-        #scroll {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            z-index: 99;
-            display: none;
-        }
-
         div.alert {
             opacity: 0;
             transition: opacity 1s
@@ -305,27 +297,20 @@
             </h4>
             <br />
 
+            <button class="button btn btn-info" id="scroll">scroll to top</button>
+
             <script>
                 // script for task #4
                 (function() {
                     'use strict';
-                    var scrollButton = document.createElement('button');
-                    scrollButton.className = "button btn btn-info";
-                    scrollButton.setAttribute("id", "scroll");
-
-                    var value = "scroll to top";
-                    var buttonText = document.createTextNode(value);
-                    scrollButton.appendChild(buttonText);
+                    var scrollButton = document.getElementById('scroll');
 
                     scrollButton.onclick = () => {
                         document.documentElement.scrollTop = 0;
                     };
 
-                    var body = document.getElementsByTagName('body')[0];
-                    body.appendChild(scrollButton);
-
                     document.onscroll = () => {
-                        window.pageYOffset ? scrollButton.style.display = 'block' : scrollButton.style.display = 'none';
+                        window.pageYOffset ? scrollButton.classList.remove("hidden-class") : scrollButton.classList.add("hidden-class");
                     };
                 })();
 

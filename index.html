@@ -45,7 +45,7 @@
         }
 
         .right {
-            left: 95%;
+            left: 94%;
         }
 
         .alert {
@@ -310,7 +310,7 @@
                     };
 
                     document.onscroll = () => {
-                        window.pageYOffset ? scrollButton.classList.remove("hidden-class") : scrollButton.classList.add("hidden-class");
+                        window.pageYOffset > window.innerHeight*0.8 ? scrollButton.classList.remove("hidden-class") : scrollButton.classList.add("hidden-class");
                     };
                 })();
 

@@ -40,6 +40,12 @@
             border-radius: 100px;
             position: absolute;
             top: 120px;
+            left: 0%;
+            transition: all 10s;
+        }
+
+        .right {
+            left: 95%;
         }
 
         .alert {
@@ -179,20 +185,17 @@
                 (function() {
                     'use strict';
                     var playElement = document.querySelector(".play");
-                    var limitRight = document.querySelector('ol.tasks').clientWidth - playElement.clientWidth * 8 / 5;
-                    playElement.style.transition = "all 3s";
 
                     function moveElement(event) {
                         event.preventDefault();
-                        var strTranslate = "translate(" + limitRight + "px)";
                         playElement.classList.toggle("moveRight");
                         var direction = playElement.classList.contains("moveRight");
                         switch (direction) {
                             case true:
-                                playElement.style.transform = strTranslate;
+                                playElement.classList.add("right");
                                 break;
                             case false:
-                                playElement.style.transform = "translate(0px)";
+                                playElement.classList.remove("right");
                                 break;
                         }
                     }

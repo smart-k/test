@@ -285,7 +285,7 @@
                                 clearTimeout(timeoutId);
                                 timeoutId = null;
 
-                                wrapper = document.getElementById('alert_wrapper');
+                                var wrapper = document.getElementById('alert_wrapper');
                                 // Remove all active alerts from the wrapper
                                 for (var i = 0; i < wrapper.childNodes.length; i++) {
                                     wrapper.removeChild(wrapper.childNodes[i]);
@@ -324,7 +324,6 @@
                         item.addEventListener("click", showOneClickAlert);
                         item.addEventListener("dblclick", showDblClickAlert);
                     });
-
                     document.querySelectorAll('a.close').forEach((item) => {
                         item.setAttribute("onclick", "closeAlert(event)");
                     });

@@ -50,10 +50,21 @@
             margin-left: -100px;
         }
 
-        .alert {
+        #alert_wrapper {
             position: absolute;
-            width: 450px;
+            top: 10px;
             right: 20px;
+        }
+
+        .alert {
+            position: relative;
+            width: 450px;
+            opacity: 0;
+            transition: all 3s
+        }
+
+        .alert.show {
+            opacity: 1;
         }
 
         .box {
@@ -96,15 +107,6 @@
 
         .hidden-class {
             display: none;
-        }
-
-        div.alert {
-            opacity: 0;
-            transition: opacity 1s
-        }
-
-        div.alert.show {
-            opacity: 1;
         }
 
     </style>
@@ -217,10 +219,33 @@
             <script>
                 // script for task #3
 
-                // Close alert message if x clicked
+                // Map: buttonId => alertId
+                var alertsMap = {
+                    "button_alert_Success": "Success",
+                    "button_alert_Info": "Info",
+                    "button_alert_Warning": "Warning",
+                    "button_alert_Danger": "Danger"
+                };
+                // timeoutId for one click & double mouse click detection
+                var timeoutId;
+                const clickDelay = 500;
+                // Store timerId's as key => value
+                var timers = {};
+                var wrapper;
+                /*
+                Close alert if x clicked
+                */
                 function closeAlert(event) {
-                    var el = event.target.parentNode;
-                    el.classList.remove("show");
+                    event.preventDefault();
+                    // Get alert 
+                    var el = event.currentTarget.parentNode;
+                    var id = el.getAttribute("id");
+                    // Clear active timer for this alert 
+                    clearTimeout(timers[id]);
+                    delete timers[id];
+                    // Remove alert from the wrapper 
+                    wrapper = el.parentNode;
+                    wrapper.removeChild(el);
                 }
 
                 document.addEventListener("DOMContentLoaded", function(event) {
@@ -228,63 +253,67 @@
                     event.preventDefault();
                     // Timer delay
                     const delay = 10000;
-                    var input = document.getElementsByTagName('input');
-                    // Store timerId's as key => value
-                    var timers = {};
-                    // Map as buttonId => array of alerts
-                    var alertsMap = {
-                        "button_alert_Success": ["Success"],
-                        "button_alert_Info": ["Info"],
-                        "button_alert_Warning": ["Warning"],
-                        "button_alert_Danger": ["Danger"]
-                    };
-
-                    // Button click handler
-                    function showAlert(e) {
-                        var body = document.getElementsByTagName("body")[0];
-                        var buttonId = this.getAttribute("id");
-                        // Get alerts from alertsMap
-                        alertsMap[buttonId].forEach((alertId, index) => {
-                            let alert = document.getElementById(alertId).cloneNode(true);
-                            alert.style.top = "10px";
-                            // Add user input to the alert
-                            alert.lastChild.nodeValue = " " + input[0].value;
-                            // If active timer => clear
-                            if (alertId in timers)
-                                if (timers[alertId]) {clearTimeout(timers[alertId]);}
-                            // Show alert
-                            alert.classList.add("show");
-                            body.appendChild(alert);
-                            // Set alert's timer
-                            timers[alertId] = setTimeout(() => {
-                                body.removeChild(alert);
-                            }, delay);
-                        });
+                    /*    
+                    Show alert to the user
+                    */
+                    function showAlert(alertId) {
+                        var elem = document.getElementById(alertId);
+                        // Make alert
+                        var alert = elem.cloneNode(true);
+                        var newAlertId = alert.getAttribute("id") + "-" + Math.ceil(Math.random() * 100);
+                        alert.setAttribute("id", newAlertId);
+                        // Add user input to the alert
+                        var input = document.getElementsByTagName('input');
+                        alert.lastChild.nodeValue = " " + input[0].value;
+                        // Add alert to wrapper
+                        wrapper = document.getElementById('alert_wrapper');
+                        wrapper.appendChild(alert);
+                        // Show alert
+                        alert.classList.add("show");
+                        // Set alert's timer
+                        timers[newAlertId] = setTimeout(() => {
+                            wrapper.removeChild(alert);
+                        }, delay);
                     }
-                    // Button double click handler
-                    //                    function showDblClickAlert(e) {
-                    //                        // Consequently hide all active alerts and clear it's timers 
-                    //                        for (var timerId in timers) {
-                    //                            if (timers[timerId]) {
-                    //                                // If active timer => clear 
-                    //                                clearTimeout(timers[timerId]);
-                    //                                // If active timer => close active alert
-                    //                                var alert = document.getElementById(timerId);
-                    //                                alert.classList.remove("show");
-                    //                            }
-                    //                        }
-                    //                        // Consequently show all alerts and set it's timers 
-                    //                        var alerts = document.querySelectorAll('div.alert');
-                    //                        alerts.forEach((item) => {
-                    //                            item.lastChild.nodeValue = " " + input[0].value;
-                    //                            item.classList.add("show");
-                    //                            var timerId = item.getAttribute('id');
-                    //                            // Set timers for alerts
-                    //                            timers[timerId] = setTimeout(() => {
-                    //                                item.classList.remove("show");
-                    //                            }, delay);
-                    //                        });
-                    //                    }
+                    /*    
+                    Button's click handler
+                    */
+                    function showOneClickAlert(e) {
+                        // If one button's click
+                        if (!timeoutId)
+                            timeoutId = setTimeout((e) => {
+                                clearTimeout(timeoutId);
+                                timeoutId = null;
+
+                                wrapper = document.getElementById('alert_wrapper');
+                                // Remove all active alerts from the wrapper
+                                for (var i = 0; i < wrapper.childNodes.length; i++) {
+                                    wrapper.removeChild(wrapper.childNodes[i]);
+                                }
+                                // Clear all timers
+                                for (var id in timers) {
+                                    clearTimeout(timers[id]);
+                                    delete timers[id];
+                                }
+                                // Get button's Id
+                                var buttonId = this.getAttribute("id");
+                                // Get alertId from alertsMap
+                                var alertId = alertsMap[buttonId];
+                                showAlert(alertId);
+                            }, clickDelay);
+                    }
+                    /*
+                    Button's double click handler
+                    */
+                    function showDblClickAlert(e) {
+                        clearTimeout(timeoutId);
+                        timeoutId = null;
+                        // Get button's Id
+                        var buttonId = this.getAttribute("id");
+                        // Get alertId from alertsMap
+                        var alertId = alertsMap[buttonId];
+                        showAlert(alertId);
+                    }
                     // Set events handlers
                     var buttons = [];
                     buttons.push(document.getElementById('button_alert_Success'));
@@ -292,8 +321,8 @@
                     buttons.push(document.getElementById('button_alert_Warning'));
                     buttons.push(document.getElementById('button_alert_Danger'));
                     buttons.forEach((item) => {
-                        item.addEventListener("click", showAlert);
-                        //                        item.addEventListener("dblclick", showDblClickAlert);
+                        item.addEventListener("click", showOneClickAlert);
+                        item.addEventListener("dblclick", showDblClickAlert);
                     });
 
                     document.querySelectorAll('a.close').forEach((item) => {
@@ -413,25 +442,49 @@
     </ol>
     <br><br><br>
 
-    <div class="alert alert-success hidden-class" style="top: 10px" id="Success">
+    <div id="alert_wrapper">
+    </div>
+
+    <div class="alert alert-success" id="Success">
         <a href="#" class="close" newElementTitle="close">&times;</a>
         <strong>Success!</strong> Indicates a successful or positive action.
     </div>
 
-    <div class="alert alert-info hidden-class" style="top: 70px" id="Info">
+    <div class="alert alert-info" id="Info">
         <a href="#" class="close" newElementTitle="close">&times;</a>
         <strong>Info!</strong> Indicates a neutral informative change or action. With long long text
     </div>
 
-    <div class="alert alert-warning hidden-class" style="top: 150px" id="Warning">
+    <div class="alert alert-warning" id="Warning">
         <a href="#" class="close" newElementTitle="close">&times;</a>
         <strong>Warning!</strong> Indicates a warning that might need attention.
     </div>
 
-    <div class="alert alert-danger hidden-class" style="top: 210px" id="Danger">
+    <div class="alert alert-danger" id="Danger">
         <a href="#" class="close" newElementTitle="close">&times;</a>
         <strong>Danger!</strong> Indicates a dangerous or potentially negative action.
     </div>
+    <!--
+    <div class="alert alert-success" style="top: 10px" id="Success">
+        <a href="#" class="close" newElementTitle="close">&times;</a>
+        <strong>Success!</strong> Indicates a successful or positive action.
+    </div>s
+
+    <div class="alert alert-info" style="top: 70px" id="Info">
+        <a href="#" class="close" newElementTitle="close">&times;</a>
+        <strong>Info!</strong> Indicates a neutral informative change or action. With long long text
+    </div>
+
+    <div class="alert alert-warning" style="top: 150px" id="Warning">
+        <a href="#" class="close" newElementTitle="close">&times;</a>
+        <strong>Warning!</strong> Indicates a warning that might need attention.
+    </div>
+
+    <div class="alert alert-danger" style="top: 210px" id="Danger">
+        <a href="#" class="close" newElementTitle="close">&times;</a>
+        <strong>Danger!</strong> Indicates a dangerous or potentially negative action.
+    </div>
+-->
 </body>
 
 </html>

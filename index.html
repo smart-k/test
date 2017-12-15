@@ -109,6 +109,13 @@
             display: none;
         }
 
+        .fixed {
+            position: fixed;
+            top: 20px;
+            z-index: 99;
+            display: block;
+        }
+
     </style>
 
 </head>
@@ -126,10 +133,7 @@
  &lt;/div&gt;
             </pre>
             <br />
-            <div class="item hidden-class" id="my_template">
-                <h4>Заголовок #</h4>
-                <p>текст текст текст</p>
-            </div>
+
             <select class="form-control" id="selectPlace">
 <option value="start">Добавить в начало</option>
 <option value="middle">Добавить в середину</option>
@@ -142,14 +146,15 @@
                 // script for task #1
                 (function() {
                     'use strict';
+                    var newElement;
 
                     function addMarkup(event) {
                         var container = document.getElementById('container');
                         var newElement = document.getElementById('my_template').cloneNode(true);
-                        newElement.getElementsByTagName('h4')[0].innerText += container.children.length + 1;
+
+                        newElement.getElementsByTagName('span')[0].innerText = container.children.length + 1;
                         newElement.classList.remove("hidden-class");
-                        var selectValue = document.getElementById('selectPlace').value;
-                        switch (selectValue) {
+                        switch (document.getElementById('selectPlace').value) {
                             case "start":
                                 container.insertBefore(newElement, container.children[0]);
                                 break;
@@ -184,9 +189,8 @@
 
                     function moveElement(event) {
                         event.preventDefault();
-                        playElement.classList.toggle("moveRight");
-                        var direction = playElement.classList.contains("moveRight");
-                        switch (direction) {
+                        playElement.classList.toggle("right");
+                        switch (playElement.classList.contains("right")) {
                             case true:
                                 playElement.classList.add("right");
                                 break;
@@ -336,20 +340,32 @@
             </h4>
             <br />
 
-            <button class="button btn btn-info" id="scroll">scroll to top</button>
+            <button class="button btn btn-info hidden-class" id="scroll">scroll to top</button>
 
             <script>
                 // script for task #4
                 (function() {
                     'use strict';
                     var scrollButton = document.getElementById('scroll');
+                    var timeoutId;
 
-                    scrollButton.onclick = () => {
-                        document.documentElement.scrollTop = 0;
+                    scrollButton.onmousedown = (e) => {
+                        timeoutId = setInterval((e) => {
+                            if (window.pageYOffset > 0)
+                                window.scrollBy(0, -20);
+                        }, 100);
                     };
 
-                    document.onscroll = () => {
-                        window.pageYOffset > document.documentElement.clientHeight ? scrollButton.classList.remove("hidden-class") : scrollButton.classList.add("hidden-class");
+                    scrollButton.onmouseup = (e) => {
+                        clearInterval(timeoutId);
+                    };
+
+                    document.onscroll = (e) => {
+                        if (window.pageYOffset > document.documentElement.clientHeight) scrollButton.classList.add("fixed");
+                        if (!window.pageYOffset) {
+                            scrollButton.classList.remove("fixed");
+                            clearInterval(timeoutId);
+                        }
                     };
                 })();
 
@@ -462,6 +478,11 @@
     <div class="alert alert-danger" id="Danger">
         <a href="#" class="close" newElementTitle="close">&times;</a>
         <strong>Danger!</strong> Indicates a dangerous or potentially negative action.
+    </div>
+
+    <div class="item hidden-class" id="my_template">
+        <h4>Заголовок #<span></span></h4>
+        <p>текст текст текст</p>
     </div>
 
 </body>

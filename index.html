@@ -349,7 +349,7 @@
                     };
 
                     document.onscroll = () => {
-                        window.pageYOffset > document.documentElement.clientHeight * 0.87 ? scrollButton.classList.remove("hidden-class") : scrollButton.classList.add("hidden-class");
+                        window.pageYOffset > document.documentElement.clientHeight ? scrollButton.classList.remove("hidden-class") : scrollButton.classList.add("hidden-class");
                     };
                 })();
 

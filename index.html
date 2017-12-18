@@ -152,7 +152,7 @@
                         var container = document.getElementById('container');
                         var newElement = document.getElementById('my_template').cloneNode(true);
 
-                        newElement.getElementsByTagName('span')[0].innerText = container.children.length + 1;
+                        newElement.getElementsByTagName('span')[0].textContent = container.children.length + 1;
                         newElement.classList.remove("hidden-class");
                         switch (document.getElementById('selectPlace').value) {
                             case "start":
@@ -199,8 +199,7 @@
                                 break;
                         }
                     }
-                    var button = document.getElementById('go');
-                    button.addEventListener("click", moveElement);
+                    document.getElementById('go').addEventListener("click", moveElement);                
                 })();
 
             </script>
@@ -214,25 +213,15 @@
 
             <input type="text" class="form-control">
 
-            <button class="button btn btn-success" id="button_alert_Success">Success</button>
-            <button class="button btn btn-info" id="button_alert_Info">Info</button>
-            <button class="button btn btn-warning" id="button_alert_Warning">Warning</button>
-            <button class="button btn btn-danger" id="button_alert_Danger">Danger</button>
+            <button class="button btn btn-success" alert-type="alert-success" id="button_alert_success">Success</button>
+            <button class="button btn btn-info" alert-type="alert-info" id="button_alert_info">Info</button>
+            <button class="button btn btn-warning" alert-type="alert-warning" id="button_alert_Warning">Warning</button>
+            <button class="button btn btn-danger" alert-type="alert-danger" id="button_alert_Danger">Danger</button>
 
 
             <script>
                 // script for task #3
 
-                // Map: buttonId => alertId
-                var alertsMap = {
-                    "button_alert_Success": "Success",
-                    "button_alert_Info": "Info",
-                    "button_alert_Warning": "Warning",
-                    "button_alert_Danger": "Danger"
-                };
-                // timeoutId for one click & double mouse click detection
-                var timeoutId;
-                const clickDelay = 500;
                 // Store timerId's as key => value
                 var timers = {};
                 var wrapper;
@@ -284,40 +273,25 @@
                     */
                     function showOneClickAlert(e) {
                         // If one button's click
-                        if (!timeoutId)
-                            timeoutId = setTimeout((e) => {
-                                clearTimeout(timeoutId);
-                                timeoutId = null;
-
                                 var wrapper = document.getElementById('alert_wrapper');
-                                // Remove all active alerts from the wrapper
-                                for (var i = 0; i < wrapper.childNodes.length; i++) {
-                                    wrapper.removeChild(wrapper.childNodes[i]);
-                                }
-                                // Clear all timers
-                                for (var id in timers) {
-                                    clearTimeout(timers[id]);
-                                    delete timers[id];
-                                }
                                 // Get button's Id
                                 var buttonId = this.getAttribute("id");
                                 // Get alertId from alertsMap
                                 var alertId = alertsMap[buttonId];
                                 showAlert(alertId);
-                            }, clickDelay);
                     }
                     /*
                     Button's double click handler
                     */
-                    function showDblClickAlert(e) {
-                        clearTimeout(timeoutId);
-                        timeoutId = null;
-                        // Get button's Id
-                        var buttonId = this.getAttribute("id");
-                        // Get alertId from alertsMap
-                        var alertId = alertsMap[buttonId];
-                        showAlert(alertId);
-                    }
+//                    function showDblClickAlert(e) {
+//                        clearTimeout(timeoutId);
+//                        timeoutId = null;
+//                        // Get button's Id
+//                        var buttonId = this.getAttribute("id");
+//                        // Get alertId from alertsMap
+//                        var alertId = alertsMap[buttonId];
+//                        showAlert(alertId);
+//                    }
                     // Set events handlers
                     var buttons = [];
                     buttons.push(document.getElementById('button_alert_Success'));
@@ -326,7 +300,6 @@
                     buttons.push(document.getElementById('button_alert_Danger'));
                     buttons.forEach((item) => {
                         item.addEventListener("click", showOneClickAlert);
-                        item.addEventListener("dblclick", showDblClickAlert);
                     });
                     document.querySelectorAll('a.close').forEach((item) => {
                         item.setAttribute("onclick", "closeAlert(event)");
@@ -361,7 +334,7 @@
                     };
 
                     document.onscroll = (e) => {
-                        if (window.pageYOffset > document.documentElement.clientHeight) scrollButton.classList.add("fixed");
+                        if (window.pageYOffset > document.documentElement.clientHeight*7/8) scrollButton.classList.add("fixed");
                         if (!window.pageYOffset) {
                             scrollButton.classList.remove("fixed");
                             clearInterval(timeoutId);
@@ -460,11 +433,14 @@
     <div id="alert_wrapper">
     </div>
 
-    <div class="alert alert-success" id="Success">
+    
+    
+    <div class="alert alert-success">
         <a href="#" class="close" newElementTitle="close">&times;</a>
         <strong>Success!</strong> Indicates a successful or positive action.
     </div>
 
+<!--
     <div class="alert alert-info" id="Info">
         <a href="#" class="close" newElementTitle="close">&times;</a>
         <strong>Info!</strong> Indicates a neutral informative change or action. With long long text
@@ -479,6 +455,7 @@
         <a href="#" class="close" newElementTitle="close">&times;</a>
         <strong>Danger!</strong> Indicates a dangerous or potentially negative action.
     </div>
+-->
 
     <div class="item hidden-class" id="my_template">
         <h4>Заголовок #<span></span></h4>

@@ -60,12 +60,9 @@
             position: relative;
             width: 450px;
             opacity: 0;
-            transition: opacity 3s
+            transition: opacity 2s;
         }
 
-        .show {
-            opacity: 1;
-        }
 
         .box {
             height: 400px;
@@ -231,9 +228,9 @@
                     var id = el.getAttribute('id');
                     clearTimeout(timers[id]);
                     delete timers[id];
-                    el.classList.remove("show");
                     el.parentNode.removeChild(el);
                 }
+
 
                 document.addEventListener("DOMContentLoaded", function(event) {
                     'use strict';
@@ -260,7 +257,18 @@
                         }, delay);
                         timers[timeoutId] = timeoutId;
                         alert.setAttribute("id", timeoutId);
-                        alert.classList.add("show");
+
+                        var animationTime = 0;
+
+                        function animationClosure() {
+                            animationTime++;
+                            var opc = "0." + animationTime;
+                            alert.style.opacity = opc;
+                            if (animationTime < 99) {
+                                setTimeout(animationClosure, 1);
+                            }
+                        }
+                        animationClosure();
                     }
                     document.getElementsByName('alert').forEach((item) => {
                         item.addEventListener("click", showAlert);

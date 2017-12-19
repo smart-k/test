@@ -60,12 +60,9 @@
             position: relative;
             width: 450px;
             opacity: 0;
-            transition: all 3s
+            transition: opacity 2s;
         }
 
-        .alert.show {
-            opacity: 1;
-        }
 
         .box {
             height: 400px;
@@ -109,6 +106,13 @@
             display: none;
         }
 
+        .fixed {
+            position: fixed;
+            top: 20px;
+            z-index: 99;
+            display: block;
+        }
+
     </style>
 
 </head>
@@ -126,10 +130,7 @@
  &lt;/div&gt;
             </pre>
             <br />
-            <div class="item hidden-class" id="my_template">
-                <h4>Заголовок #</h4>
-                <p>текст текст текст</p>
-            </div>
+
             <select class="form-control" id="selectPlace">
 <option value="start">Добавить в начало</option>
 <option value="middle">Добавить в середину</option>
@@ -142,14 +143,15 @@
                 // script for task #1
                 (function() {
                     'use strict';
+                    var newElement;
 
                     function addMarkup(event) {
                         var container = document.getElementById('container');
                         var newElement = document.getElementById('my_template').cloneNode(true);
-                        newElement.getElementsByTagName('h4')[0].innerText += container.children.length + 1;
+
+                        newElement.getElementsByTagName('span')[0].textContent = container.children.length + 1;
                         newElement.classList.remove("hidden-class");
-                        var selectValue = document.getElementById('selectPlace').value;
-                        switch (selectValue) {
+                        switch (document.getElementById('selectPlace').value) {
                             case "start":
                                 container.insertBefore(newElement, container.children[0]);
                                 break;
@@ -184,9 +186,8 @@
 
                     function moveElement(event) {
                         event.preventDefault();
-                        playElement.classList.toggle("moveRight");
-                        var direction = playElement.classList.contains("moveRight");
-                        switch (direction) {
+                        playElement.classList.toggle("right");
+                        switch (playElement.classList.contains("right")) {
                             case true:
                                 playElement.classList.add("right");
                                 break;
@@ -195,8 +196,7 @@
                                 break;
                         }
                     }
-                    var button = document.getElementById('go');
-                    button.addEventListener("click", moveElement);
+                    document.getElementById('go').addEventListener("click", moveElement);
                 })();
 
             </script>
@@ -210,119 +210,66 @@
 
             <input type="text" class="form-control">
 
-            <button class="button btn btn-success" id="button_alert_Success">Success</button>
-            <button class="button btn btn-info" id="button_alert_Info">Info</button>
-            <button class="button btn btn-warning" id="button_alert_Warning">Warning</button>
-            <button class="button btn btn-danger" id="button_alert_Danger">Danger</button>
+            <button class="button btn btn-success" name="alert" type="success">Success</button>
+            <button class="button btn btn-info" name="alert" type="info">Info</button>
+            <button class="button btn btn-warning" name="alert" type="warning">Warning</button>
+            <button class="button btn btn-danger" name="alert" type="danger">Danger</button>
 
 
             <script>
                 // script for task #3
 
-                // Map: buttonId => alertId
-                var alertsMap = {
-                    "button_alert_Success": "Success",
-                    "button_alert_Info": "Info",
-                    "button_alert_Warning": "Warning",
-                    "button_alert_Danger": "Danger"
-                };
-                // timeoutId for one click & double mouse click detection
-                var timeoutId;
-                const clickDelay = 500;
-                // Store timerId's as key => value
+                // Store timeoutId's as key => value
                 var timers = {};
-                var wrapper;
-                /*
-                Close alert if x clicked
-                */
+
                 function closeAlert(event) {
                     event.preventDefault();
-                    // Get alert 
                     var el = event.currentTarget.parentNode;
-                    var id = el.getAttribute("id");
-                    // Clear active timer for this alert 
+                    var id = el.getAttribute('id');
                     clearTimeout(timers[id]);
                     delete timers[id];
-                    // Remove alert from the wrapper 
-                    wrapper = el.parentNode;
-                    wrapper.removeChild(el);
+                    el.parentNode.removeChild(el);
                 }
-
                 document.addEventListener("DOMContentLoaded", function(event) {
                     'use strict';
                     event.preventDefault();
-                    // Timer delay
                     const delay = 10000;
-                    /*    
-                    Show alert to the user
-                    */
-                    function showAlert(alertId) {
-                        var elem = document.getElementById(alertId);
-                        // Make alert
-                        var alert = elem.cloneNode(true);
-                        var newAlertId = alert.getAttribute("id") + "-" + Math.ceil(Math.random() * 100);
-                        alert.setAttribute("id", newAlertId);
-                        // Add user input to the alert
-                        var input = document.getElementsByTagName('input');
-                        alert.lastChild.nodeValue = " " + input[0].value;
-                        // Add alert to wrapper
-                        wrapper = document.getElementById('alert_wrapper');
-                        wrapper.appendChild(alert);
-                        // Show alert
-                        alert.classList.add("show");
-                        // Set alert's timer
-                        timers[newAlertId] = setTimeout(() => {
-                            wrapper.removeChild(alert);
-                        }, delay);
-                    }
-                    /*    
-                    Button's click handler
-                    */
-                    function showOneClickAlert(e) {
-                        // If one button's click
-                        if (!timeoutId)
-                            timeoutId = setTimeout((e) => {
-                                clearTimeout(timeoutId);
-                                timeoutId = null;
 
-                                var wrapper = document.getElementById('alert_wrapper');
-                                // Remove all active alerts from the wrapper
-                                for (var i = 0; i < wrapper.childNodes.length; i++) {
-                                    wrapper.removeChild(wrapper.childNodes[i]);
-                                }
-                                // Clear all timers
-                                for (var id in timers) {
-                                    clearTimeout(timers[id]);
-                                    delete timers[id];
-                                }
-                                // Get button's Id
-                                var buttonId = this.getAttribute("id");
-                                // Get alertId from alertsMap
-                                var alertId = alertsMap[buttonId];
-                                showAlert(alertId);
-                            }, clickDelay);
+                    function showAlert(e) {
+                        var alert = document.getElementById("my_alert").cloneNode(true);
+                        var type = e.currentTarget.getAttribute("type");
+                        alert.getElementsByTagName("strong")[0].textContent = type[0].toUpperCase() + type.substring(1) + "! ";
+                        alert.lastChild.nodeValue = document.getElementsByTagName('input')[0].value;
+                        alert.classList.add("alert-" + type); // Bootstrap class
+                        alert.setAttribute("name", "alert-" + type);
+                        var wrapper = document.getElementById('alert_wrapper');
+                        var alerts = document.getElementsByName("alert-" + type);
+                        if (alerts.length) {
+                            var next = alerts[alerts.length - 1].nextSibling;
+                            if (next) wrapper.insertBefore(alert, next);
+                            else wrapper.appendChild(alert);
+                        } else wrapper.appendChild(alert);
+                        var timeoutId = setTimeout(() => {
+                            wrapper.removeChild(alert);
+                            delete timers[timeoutId];
+                        }, delay);
+                        timers[timeoutId] = timeoutId;
+                        alert.setAttribute("id", timeoutId);
+
+                        var animationTime = 0;
+
+                        function animationClosure() {
+                            animationTime++;
+                            var opc = "0." + animationTime;
+                            alert.style.opacity = opc;
+                            if (animationTime < 99) {
+                                setTimeout(animationClosure, 1);
+                            }
+                        }
+                        animationClosure();
                     }
-                    /*
-                    Button's double click handler
-                    */
-                    function showDblClickAlert(e) {
-                        clearTimeout(timeoutId);
-                        timeoutId = null;
-                        // Get button's Id
-                        var buttonId = this.getAttribute("id");
-                        // Get alertId from alertsMap
-                        var alertId = alertsMap[buttonId];
-                        showAlert(alertId);
-                    }
-                    // Set events handlers
-                    var buttons = [];
-                    buttons.push(document.getElementById('button_alert_Success'));
-                    buttons.push(document.getElementById('button_alert_Info'));
-                    buttons.push(document.getElementById('button_alert_Warning'));
-                    buttons.push(document.getElementById('button_alert_Danger'));
-                    buttons.forEach((item) => {
-                        item.addEventListener("click", showOneClickAlert);
-                        item.addEventListener("dblclick", showDblClickAlert);
+                    document.getElementsByName('alert').forEach((item) => {
+                        item.addEventListener("click", showAlert);
                     });
                     document.querySelectorAll('a.close').forEach((item) => {
                         item.setAttribute("onclick", "closeAlert(event)");
@@ -336,20 +283,32 @@
             </h4>
             <br />
 
-            <button class="button btn btn-info" id="scroll">scroll to top</button>
+            <button class="button btn btn-info hidden-class" id="scroll">scroll to top</button>
 
             <script>
                 // script for task #4
                 (function() {
                     'use strict';
                     var scrollButton = document.getElementById('scroll');
+                    var timeoutId;
 
-                    scrollButton.onclick = () => {
-                        document.documentElement.scrollTop = 0;
+                    scrollButton.onmousedown = (e) => {
+                        timeoutId = setInterval((e) => {
+                            if (window.pageYOffset > 0)
+                                window.scrollBy(0, -20);
+                        }, 100);
                     };
 
-                    document.onscroll = () => {
-                        window.pageYOffset > document.documentElement.clientHeight ? scrollButton.classList.remove("hidden-class") : scrollButton.classList.add("hidden-class");
+                    scrollButton.onmouseup = (e) => {
+                        clearInterval(timeoutId);
+                    };
+
+                    document.onscroll = (e) => {
+                        if (window.pageYOffset > document.documentElement.clientHeight * 7 / 8) scrollButton.classList.add("fixed");
+                        if (!window.pageYOffset) {
+                            scrollButton.classList.remove("fixed");
+                            clearInterval(timeoutId);
+                        }
                     };
                 })();
 
@@ -374,39 +333,80 @@
                     var panel = document.querySelector('div.panel.box');
                     var shiftX, shiftY;
 
-                    // Set events handlers
                     items.forEach((item) => {
                         item.onmousedown = actionOnMouseDown;
-                        item.touchstart = actionOnMouseDown;
                         item.ondragstart = function() {
                             return false;
                         };
+                        item.ontouchstart = touchStart;
+                        item.ontouchmove = touchMove;
+                        item.ontouchend = touchEnd;
                     });
 
-                    function actionOnMouseUp(e) {
-                        var item = this;
+                    function getCoords(elem) {
+                        var box = elem.getBoundingClientRect();
+                        return {
+                            top: box.top + window.pageYOffset,
+                            bottom: box.bottom + window.pageYOffset,
+                            left: box.left + window.pageXOffset,
+                            right: box.right + window.pageXOffset
+                        };
+                    }
+
+                    function touchStart(event) {
+                        event.preventDefault();
+                        var coords = getCoords(event.currentTarget);
+                        shiftX = event.targetTouches[0].pageX - coords.left;
+                        shiftY = event.targetTouches[0].pageY - coords.top;
+                    }
+
+                    function touchMove(event) {
+                        event.preventDefault();
+                        var item = event.currentTarget;
+                        item.classList.add("move");
+                        document.body.appendChild(item);
+                        var rightMargin = 10 + item.clientWidth;
+                        var bottomMargin = 10 + item.clientHeight;
+                        var panelCoords = getCoords(panel);
+                        var left = event.targetTouches[0].pageX - shiftX;
+                        var top = event.targetTouches[0].pageY - shiftY;
+                        
+                        if (left - panelCoords.left > 10 && panelCoords.right - left > rightMargin) item.style.left = left + 'px';
+                        if (top - panelCoords.top > 10 && panelCoords.bottom - top > bottomMargin) item.style.top = event.targetTouches[0].pageY - shiftY + 'px';
+                    }
+
+                    function touchEnd(e) {
+                        e.preventDefault();
+                        var item = e.currentTarget;
                         item.classList.remove("move");
-                        document.onmousemove = null;
-                        document.touchmove = null;
-                        item.onmouseup = null;
+                        item.touchmove = null;
                         item.touchend = null;
                     }
 
+                    function actionOnMouseUp(e) {
+                        var item = e.currentTarget;
+                        item.classList.remove("move");
+                        item.onmouseup = null;
+                        document.onmousemove = null;
+                    }
+
                     function actionOnMouseDown(e) {
-                        var item = this;
+                        var item = e.currentTarget;
                         var rightMargin = 10 + item.clientWidth;
                         var bottomMargin = 10 + item.clientHeight;
                         var coords = getCoords(item);
-
                         shiftX = e.pageX - coords.left;
                         shiftY = e.pageY - coords.top;
 
                         item.classList.add("move");
                         document.body.appendChild(item);
+
                         moveAt(e);
 
                         function moveAt(e) {
                             var panelCoords = getCoords(panel);
+                            var left;
+                            var top;
 
                             var left = e.pageX - shiftX;
                             var top = e.pageY - shiftY;
@@ -420,20 +420,10 @@
                         }
 
                         document.onmousemove = actionOnMouseMove;
-                        document.touchmove = actionOnMouseMove;
                         this.onmouseup = actionOnMouseUp;
-                        this.touchend = actionOnMouseUp;
                     }
 
-                    function getCoords(elem) {
-                        var box = elem.getBoundingClientRect();
-                        return {
-                            top: box.top + pageYOffset,
-                            bottom: box.bottom + pageYOffset,
-                            left: box.left + pageXOffset,
-                            right: box.right + pageXOffset
-                        };
-                    }
+
                 })();
 
             </script>
@@ -444,24 +434,14 @@
     <div id="alert_wrapper">
     </div>
 
-    <div class="alert alert-success" id="Success">
+    <div class="alert" id="my_alert">
         <a href="#" class="close" newElementTitle="close">&times;</a>
-        <strong>Success!</strong> Indicates a successful or positive action.
+        <strong></strong>
     </div>
 
-    <div class="alert alert-info" id="Info">
-        <a href="#" class="close" newElementTitle="close">&times;</a>
-        <strong>Info!</strong> Indicates a neutral informative change or action. With long long text
-    </div>
-
-    <div class="alert alert-warning" id="Warning">
-        <a href="#" class="close" newElementTitle="close">&times;</a>
-        <strong>Warning!</strong> Indicates a warning that might need attention.
-    </div>
-
-    <div class="alert alert-danger" id="Danger">
-        <a href="#" class="close" newElementTitle="close">&times;</a>
-        <strong>Danger!</strong> Indicates a dangerous or potentially negative action.
+    <div class="item hidden-class" id="my_template">
+        <h4>Заголовок #<span></span></h4>
+        <p>текст текст текст</p>
     </div>
 
 </body>

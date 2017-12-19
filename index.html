@@ -335,21 +335,63 @@
 
                     items.forEach((item) => {
                         item.onmousedown = actionOnMouseDown;
-                        item.touchstart = actionOnMouseDown;
                         item.ondragstart = function() {
                             return false;
                         };
+                        item.ontouchstart = touchStart;
+                        item.ontouchmove = touchMove;
+                        item.ontouchend = touchEnd;
                     });
 
+                    function getCoords(elem) {
+                        var box = elem.getBoundingClientRect();
+                        return {
+                            top: box.top + window.pageYOffset,
+                            bottom: box.bottom + window.pageYOffset,
+                            left: box.left + window.pageXOffset,
+                            right: box.right + window.pageXOffset
+                        };
+                    }
+
+                    function touchStart(event) {
+                        event.preventDefault();
+                        var coords = getCoords(event.currentTarget);
+                        shiftX = event.targetTouches[0].pageX - coords.left;
+                        shiftY = event.targetTouches[0].pageY - coords.top;
+                    }
+
+                    function touchMove(event) {
+                        event.preventDefault();
+                        var item = event.currentTarget;
+                        item.classList.add("move");
+                        document.body.appendChild(item);
+                        var rightMargin = 10 + item.clientWidth;
+                        var bottomMargin = 10 + item.clientHeight;
+                        var panelCoords = getCoords(panel);
+                        var left = event.targetTouches[0].pageX - shiftX;
+                        var top = event.targetTouches[0].pageY - shiftY;
+                        
+                        if (left - panelCoords.left > 10 && panelCoords.right - left > rightMargin) item.style.left = left + 'px';
+                        if (top - panelCoords.top > 10 && panelCoords.bottom - top > bottomMargin) item.style.top = event.targetTouches[0].pageY - shiftY + 'px';
+                    }
+
+                    function touchEnd(e) {
+                        e.preventDefault();
+                        var item = e.currentTarget;
+                        item.classList.remove("move");
+                        item.touchmove = null;
+                        item.touchend = null;
+                    }
+
                     function actionOnMouseUp(e) {
-                        var item = this;
+                        var item = e.currentTarget;
                         item.classList.remove("move");
                         item.onmouseup = null;
                         document.onmousemove = null;
                     }
 
                     function actionOnMouseDown(e) {
-                        var item = this;
+                        var item = e.currentTarget;
                         var rightMargin = 10 + item.clientWidth;
                         var bottomMargin = 10 + item.clientHeight;
                         var coords = getCoords(item);
@@ -381,15 +423,7 @@
                         this.onmouseup = actionOnMouseUp;
                     }
 
-                    function getCoords(elem) {
-                        var box = elem.getBoundingClientRect();
-                        return {
-                            top: box.top + window.pageYOffset,
-                            bottom: box.bottom + window.pageYOffset,
-                            left: box.left + window.pageXOffset,
-                            right: box.right + window.pageXOffset
-                        };
-                    }
+
                 })();
 
             </script>

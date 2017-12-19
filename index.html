@@ -213,79 +213,56 @@
 
             <input type="text" class="form-control">
 
-            <button class="button btn btn-success" alert-type="alert-success" id="success">Success</button>
-            <button class="button btn btn-info" alert-type="alert-info" id="info">Info</button>
-            <button class="button btn btn-warning" alert-type="alert-warning" id="warning">Warning</button>
-            <button class="button btn btn-danger" alert-type="alert-danger" id="danger">Danger</button>
+            <button class="button btn btn-success" name="alert" type="success">Success</button>
+            <button class="button btn btn-info" name="alert" type="info">Info</button>
+            <button class="button btn btn-warning" name="alert" type="warning">Warning</button>
+            <button class="button btn btn-danger" name="alert" type="danger">Danger</button>
 
 
             <script>
                 // script for task #3
 
-                // Store timerId's as key => value
+                // Store timeoutId's as key => value
                 var timers = {};
 
-                /*
-                Close alert if x clicked
-                */
-                function closeAlert(e) {
-                    e.preventDefault();
-                    var el = e.currentTarget.parentNode;
+                function closeAlert(event) {
+                    event.preventDefault();
+                    var el = event.currentTarget.parentNode;
+                    var id = el.getAttribute('id');
+                    clearTimeout(timers[id]);
+                    delete timers[id];
                     el.classList.remove("show");
-                    // Get alert type
-                    var type = el.classList.item(el.classList.length - 1);
-                    // Clear active timer for this alert 
-                    clearTimeout(timers[type]);
-                    timers[type] = null;
-                    // Remove alert from the wrapper 
                     el.parentNode.removeChild(el);
                 }
 
                 document.addEventListener("DOMContentLoaded", function(event) {
                     'use strict';
                     event.preventDefault();
-                    // Timer delay
                     const delay = 10000;
-                    var wrapper = document.getElementById('alert_wrapper');
 
-                    /*    
-                    Button's click handler
-                    */
                     function showAlert(e) {
-                        var type = e.currentTarget.getAttribute("alert-type");
-                        // Make alert
                         var alert = document.getElementById("my_alert").cloneNode(true);
-                        alert.classList.add(type);
-                        var strong = type.split('-')[1];
-                        strong = strong[0].toUpperCase() + strong.substring(1) + "! ";
-                        if (alert.classList.contains("show")) {
-                            //                           
-                            //                        var al =     
-                            //                            var nextAlert = alert.getElementsByTagName("strong")[0].cloneNode(true);
-                            //                            alert.appendChild(nextAlert);
-                        } else {
-                            alert.getElementsByTagName("strong")[0].textContent = strong;
-                            // Add user input to the alert
-                            alert.lastChild.nodeValue = document.getElementsByTagName('input')[0].value;
-                        }
-
-                        // Add alert to wrapper
-                        wrapper.appendChild(alert);
-                        // Show alert
-                        alert.classList.add("show");
-                        // Set alert's timer
-                        timers[type] = setTimeout(() => {
+                        var type = e.currentTarget.getAttribute("type");
+                        alert.getElementsByTagName("strong")[0].textContent = type[0].toUpperCase() + type.substring(1) + "! ";
+                        alert.lastChild.nodeValue = document.getElementsByTagName('input')[0].value;
+                        alert.classList.add("alert-" + type); // Bootstrap class
+                        alert.setAttribute("name", "alert-" + type);
+                        var wrapper = document.getElementById('alert_wrapper');
+                        var alerts = document.getElementsByName("alert-" + type);
+                        if (alerts.length > 0) {
+                            var next = alerts[alerts.length - 1].nextSibling;
+                            if (next) wrapper.insertBefore(alert, next);
+                            else wrapper.appendChild(alert);
+                        } else wrapper.appendChild(alert);
+                        var timeoutId = setTimeout(() => {
                             wrapper.removeChild(alert);
-                            timers[type] = null;
+                            delete timers[timeoutId];
                         }, delay);
+                        timers[timeoutId] = timeoutId;
+                        alert.setAttribute("id", timeoutId);
+                        alert.classList.add("show");
                     }
-
-                    var buttons = [];
-                    buttons.push(document.getElementById('success'));
-                    buttons.push(document.getElementById('info'));
-                    buttons.push(document.getElementById('warning'));
-                    buttons.push(document.getElementById('danger'));
-                    buttons.forEach((item) => {
+                    document.getElementsByName('alert').forEach((item) => {
                         item.addEventListener("click", showAlert);
                     });
                     document.querySelectorAll('a.close').forEach((item) => {
@@ -420,29 +397,10 @@
     <div id="alert_wrapper">
     </div>
 
-
-
     <div class="alert" id="my_alert">
         <a href="#" class="close" newElementTitle="close">&times;</a>
-        <strong>Success!</strong> Indicates a successful or positive action.
+        <strong></strong>
     </div>
-
-    <!--
-    <div class="alert alert-info" id="Info">
-        <a href="#" class="close" newElementTitle="close">&times;</a>
-        <strong>Info!</strong> Indicates a neutral informative change or action. With long long text
-    </div>
-
-    <div class="alert alert-warning" id="Warning">
-        <a href="#" class="close" newElementTitle="close">&times;</a>
-        <strong>Warning!</strong> Indicates a warning that might need attention.
-    </div>
-
-    <div class="alert alert-danger" id="Danger">
-        <a href="#" class="close" newElementTitle="close">&times;</a>
-        <strong>Danger!</strong> Indicates a dangerous or potentially negative action.
-    </div>
--->
 
     <div class="item hidden-class" id="my_template">
         <h4>Заголовок #<span></span></h4>

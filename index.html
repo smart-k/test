@@ -230,8 +230,6 @@
                     delete timers[id];
                     el.parentNode.removeChild(el);
                 }
-
-
                 document.addEventListener("DOMContentLoaded", function(event) {
                     'use strict';
                     event.preventDefault();
@@ -246,7 +244,7 @@
                         alert.setAttribute("name", "alert-" + type);
                         var wrapper = document.getElementById('alert_wrapper');
                         var alerts = document.getElementsByName("alert-" + type);
-                        if (alerts.length > 0) {
+                        if (alerts.length) {
                             var next = alerts[alerts.length - 1].nextSibling;
                             if (next) wrapper.insertBefore(alert, next);
                             else wrapper.appendChild(alert);
@@ -355,25 +353,64 @@
 
                     function actionOnMouseDown(e) {
                         var item = this;
+
                         var rightMargin = 10 + item.clientWidth;
                         var bottomMargin = 10 + item.clientHeight;
                         var coords = getCoords(item);
-
-                        shiftX = e.pageX - coords.left;
-                        shiftY = e.pageY - coords.top;
+                        var pageX;
+                        var pageY;
+                        switch (e.type) {
+                            case "mousedown":
+                                pageX = e.pageX;
+                                pageY = e.pageY;
+                                break;
+                            case "touchstart":
+                                var touch = e.targetTouches[0];
+                                pageX = touch.pageX;
+                                pageY = touch.pageY;
+                                break;
+                        }
+                        shiftX = pageX - coords.left;
+                        shiftY = pageY - coords.top;
 
                         item.classList.add("move");
                         document.body.appendChild(item);
+
                         moveAt(e);
 
                         function moveAt(e) {
-                            var panelCoords = getCoords(panel);
 
-                            var left = e.pageX - shiftX;
-                            var top = e.pageY - shiftY;
+                            var panelCoords = getCoords(panel);
+                            var pageX;
+                            var pageY;
+                            var left;
+                            var top;
+                            var touch;
+                            switch (e.type) {
+                                case "mousedown":
+                                    pageX = e.pageX;
+                                    pageY = e.pageY;
+                                    break;
+                                case "mousemove":
+                                    pageX = e.pageX;
+                                    pageY = e.pageY;
+                                    break;
+                                case "touchstart":
+                                   touch = e.targetTouches[0];
+                                    pageX = touch.pageX;
+                                    pageY = touch.pageY;
+                                    break;
+                                case "touchmove":
+                                    touch = e.targetTouches[0];
+                                    pageX = touch.pageX;
+                                    pageY = touch.pageY;
+                                    break;
+                            }
+                            var left = pageX - shiftX;
+                            var top = pageY - shiftY;
 
                             if (left - panelCoords.left > 10 && panelCoords.right - left > rightMargin) item.style.left = left + 'px';
-                            if (top - panelCoords.top > 10 && panelCoords.bottom - top > bottomMargin) item.style.top = e.pageY - shiftY + 'px';
+                            if (top - panelCoords.top > 10 && panelCoords.bottom - top > bottomMargin) item.style.top = pageY - shiftY + 'px';
                         }
 
                         function actionOnMouseMove(e) {

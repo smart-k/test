@@ -149,7 +149,7 @@
                         var container = document.getElementById('container');
                         var newElement = document.getElementById('my_template').cloneNode(true);
 
-                        newElement.getElementsByTagName('span')[0].textContent = container.children.length + 1;
+                        newElement.querySelector('.header').textContent = container.children.length + 1;
                         newElement.classList.remove("hidden-class");
                         switch (document.getElementById('selectPlace').value) {
                             case "start":
@@ -187,14 +187,8 @@
                     function moveElement(event) {
                         event.preventDefault();
                         playElement.classList.toggle("right");
-                        switch (playElement.classList.contains("right")) {
-                            case true:
-                                playElement.classList.add("right");
-                                break;
-                            case false:
-                                playElement.classList.remove("right");
-                                break;
-                        }
+                        if (playElement.classList.contains("right")) playElement.classList.add("right");
+                        else playElement.classList.remove("right");
                     }
                     document.getElementById('go').addEventListener("click", moveElement);
                 })();
@@ -225,7 +219,7 @@
                 function closeAlert(event) {
                     event.preventDefault();
                     var el = event.currentTarget.parentNode;
-                    var id = el.getAttribute('id');
+                    var id = el.getAttribute('my-custom-attribute');
                     clearTimeout(timers[id]);
                     delete timers[id];
                     el.parentNode.removeChild(el);
@@ -254,7 +248,7 @@
                             delete timers[timeoutId];
                         }, delay);
                         timers[timeoutId] = timeoutId;
-                        alert.setAttribute("id", timeoutId);
+                        alert.setAttribute("my-custom-attribute", timeoutId);
 
                         var animationTime = 0;
 
@@ -370,7 +364,7 @@
                         var panelCoords = getCoords(panel);
                         var left = event.targetTouches[0].pageX - shiftX;
                         var top = event.targetTouches[0].pageY - shiftY;
-                        
+
                         if (left - panelCoords.left > 10 && panelCoords.right - left > rightMargin) item.style.left = left + 'px';
                         if (top - panelCoords.top > 10 && panelCoords.bottom - top > bottomMargin) item.style.top = event.targetTouches[0].pageY - shiftY + 'px';
                     }
@@ -440,7 +434,7 @@
     </div>
 
     <div class="item hidden-class" id="my_template">
-        <h4>Заголовок #<span></span></h4>
+        <h4>Заголовок #<span class="header"></span></h4>
         <p>текст текст текст</p>
     </div>
 
